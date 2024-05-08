@@ -1,0 +1,140 @@
+- daily movement      ---- (add operation - export excel , csv)
+- product               ---- (add - edit - remove - all products - one product - search - export - import)
+- clients             ---- (add - edit - export - import)
+- Location
+- Delivery
+- Order
+- employee
+- reports :
+  - client            ----(one client - top 10) from - to - export
+  - product              ----(one product - top 10) from - to - export
+  - monthly (default) ----(export)
+  - from - to
+
+- history (admin) - actions [daily movement] -filter (time , product , client)
+- dashboard           ---- today actions
+- settings (users - permissions - Gmail - branch)
+
+- users [admin , employee]
+
+
+-------------------------
+Operation :
+    - date time
+    - branch
+    - user
+
+
+
+======================================
+
+- product :
+    - title Product
+    - description Product
+    - code Product
+    - price Product
+    - image Product
+    - Product unit
+
+- clients
+    - name client
+    - phone client 1
+    - phone client 2
+    - address client
+
+- Location
+    - governorate
+    - city
+    - area
+
+- Delivery
+    - name delivery
+    - phone delivery 1
+    - phone delivery 2
+    - area delivery
+
+- Order
+    - id_order
+    - id_clint
+    - id_delivery
+    - order_status
+    - date_expected
+    - date_deliver
+    - id_itm_01
+    - number_itm_01
+    - id_itm_02
+    - number_itm_02
+    - id_itm_03
+    - number_itm_03
+    - id_itm_04
+    - number_itm_04
+    - id_itm_05
+    - number_itm_05
+    - id_itm_06
+    - number_itm_06
+    - id_itm_07
+    - number_itm_07
+    - id_itm_08
+    - number_itm_08
+    - id_itm_09
+    - number_itm_09
+    - id_itm_10
+    - number_itm_10
+    - discount
+    - total_order
+
+- employee :
+    - name employee
+    - email employee
+    - phone employee
+    - date
+    - national_id employee
+    - priority employee
+
+    - permissions employee
+
+- daily_movements :
+    - product
+    - client
+    - date
+    - branch
+    - from to
+    - employee
+
+- history :
+    - employee
+    - action
+    - table
+    - date
+    - branch
+
+
+- Sort on retrieve
+
+- sound
+
+- changed field
+
+- Calender
+
+====================== auto complete ===============
+- # auto complete options
+        names = ["Apple", "Alps", "Berry", "Cherry" ]
+        completer = QCompleter(names)
+
+        # create line edit and add auto complete
+        self.lineedit = QLineEdit()
+        self.lineedit.setCompleter(completer)
+        layout.addWidget(self.lineedit, 0, 0)
+
+43- research different types
+
+======================CMD===============
+
+
+ pyuic5 -x main.ui -o main_01.py
+
+ pyrcc5 res.qrc -o res_rc.py
+
+
+
