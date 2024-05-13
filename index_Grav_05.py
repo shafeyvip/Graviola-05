@@ -26,11 +26,14 @@ from os import path
 import sys
 import urllib.request
 
+import sqlite3
 import MySQLdb
 import datetime
 from xlsxwriter import *
 from xlrd import *
 import pyqtgraph as pg
+
+import decimal
 from decimal import Decimal
 
 
@@ -67,7 +70,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.Show_All_Products()
         self.Show_Products()
         self.Show_All_Employees()
-        self.Show_Total_Order()
+        self.Calculate_Total_Order()
 
     ## UI Changes in Login ## (Graviola_05)
     def UI_Changes(self):
@@ -150,7 +153,7 @@ class Main(QMainWindow, FORM_CLASS):
 
         #self.add_item_order_btn.clicked.connect(self.Add_Item_Order)
 
-        self.pushButton_94.clicked.connect(self.Show_Total_Order)
+        #self.pushButton_94.clicked.connect(self.Show_Total_Order)
 
         self.delete_btn_3.clicked.connect(self.Delete_Item_01_order)
         self.delete_btn_4.clicked.connect(self.Delete_Item_02_order)
@@ -162,6 +165,8 @@ class Main(QMainWindow, FORM_CLASS):
         self.delete_btn_10.clicked.connect(self.Delete_Item_08_order)
         self.delete_btn_11.clicked.connect(self.Delete_Item_09_order)
         self.delete_btn_12.clicked.connect(self.Delete_Item_10_order)
+
+        self.add_order_btm.clicked.connect(self.Add_Order)
 
 
     ## Open Login Tap (Graviola_05)
@@ -431,6 +436,7 @@ class Main(QMainWindow, FORM_CLASS):
     def Show_Clients(self):
         self.comboBox_33.clear()
         self.comboBox_51.clear()
+        self.comboBox_39.clear()
 
         self.cur.execute('''
                     SELECT name_client FROM clients
@@ -443,6 +449,7 @@ class Main(QMainWindow, FORM_CLASS):
 
             self.comboBox_33.addItem(str(client[0]))
             self.comboBox_51.addItem(str(client[0]))
+            self.comboBox_39.addItem(str(client[0]))
 
     ## Add New Client
     def Add_New_Client(self):
@@ -570,11 +577,44 @@ class Main(QMainWindow, FORM_CLASS):
 
     def Handel_Add_Product_ComboBox(self):
         self.comboBox_52.activated.connect(self.Get_Price_Product)
+        self.comboBox_39.activated.connect(self.Get_Client_Inf)
+        self.comboBox_40.activated.connect(self.Get_Delivery_Inf)
+
+    def Get_Client_Inf(self):
+        name_client = self.comboBox_39.currentText()
+
+        sql = ('''
+                SELECT * FROM clients WHERE name_client = %s
+            ''')
+        self.cur.execute(sql, [(name_client)])
+
+        data = self.cur.fetchone()
+        #print(data)
+
+        self.lineEdit_96.setText(str(data[3]))
+        self.comboBox_26.setCurrentText(str(data[6]))
+        self.comboBox_27.setCurrentIndex(data[7])
+        self.lineEdit_97.setText(str(data[8]))
+
+    def Get_Delivery_Inf(self):
+        name_delivery = self.comboBox_40.currentText()
+
+        sql = ('''
+                        SELECT * FROM delivery WHERE name_delivery = %s
+                    ''')
+        self.cur.execute(sql, [(name_delivery)])
+
+        data = self.cur.fetchone()
+        #print(data)
+
+        self.comboBox_40.setCurrentText(str(data[2]))
+        self.lineEdit_99.setText(str(data[3]))
 
     def Get_Price_Product(self):
 
         title_Product = self.comboBox_52.currentText()
         self.item_def_number = 1
+        self.total_price = 0
 
         sql = ('''
                 SELECT * FROM products WHERE title_Product = %s
@@ -604,72 +644,96 @@ class Main(QMainWindow, FORM_CLASS):
         except ValueError:
             self.lineEdit_13.setText('Invalid Input')
 
+    def Show_Item_Order(self):
+        pass
+
     def Add_Item_Order(self):
         item_name = str(self.comboBox_52.currentText())
-        item_price = Decimal(self.lineEdit_4.text())
+        item_price = self.lineEdit_4.text()
         item_number = self.lineEdit_13.text()
+        discount = self.lineEdit_57.text()
+        delivery_value = self.lineEdit_56.text()
+
         self.item_def_number = 1
-        sub_total = Decimal(item_price) * int(item_number)
+
+        item_price_decimal = Decimal(item_price)
+        item_number_decimal = Decimal(item_number)
+        discount_decimal = Decimal(discount)
+        delivery_value_decimal = Decimal(delivery_value)
+        sub_total = item_price_decimal * item_number_decimal
+
+        total = delivery_value_decimal - discount_decimal
+        total += sub_total
 
         if self.lineEdit_216.text() == "":
             self.lineEdit_216.setText(str(item_name))
             self.lineEdit_214.setText(str(item_price))
             self.lineEdit_215.setText(str(item_number))
             self.lineEdit_213.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_222.text() == "":
             self.lineEdit_222.setText(str(item_name))
             self.lineEdit_218.setText(str(item_price))
             self.lineEdit_220.setText(str(item_number))
             self.lineEdit_219.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_226.text() == "":
             self.lineEdit_226.setText(str(item_name))
             self.lineEdit_223.setText(str(item_price))
             self.lineEdit_225.setText(str(item_number))
             self.lineEdit_224.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_230.text() == "":
             self.lineEdit_230.setText(str(item_name))
             self.lineEdit_227.setText(str(item_price))
             self.lineEdit_229.setText(str(item_number))
             self.lineEdit_228.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_234.text() == "":
             self.lineEdit_234.setText(str(item_name))
             self.lineEdit_231.setText(str(item_price))
             self.lineEdit_233.setText(str(item_number))
             self.lineEdit_232.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_238.text() == "":
             self.lineEdit_238.setText(str(item_name))
             self.lineEdit_235.setText(str(item_price))
             self.lineEdit_237.setText(str(item_number))
             self.lineEdit_236.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_242.text() == "":
             self.lineEdit_242.setText(str(item_name))
             self.lineEdit_239.setText(str(item_price))
             self.lineEdit_241.setText(str(item_number))
             self.lineEdit_240.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_246.text() == "":
             self.lineEdit_246.setText(str(item_name))
             self.lineEdit_243.setText(str(item_price))
             self.lineEdit_245.setText(str(item_number))
             self.lineEdit_244.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_250.text() == "":
             self.lineEdit_250.setText(str(item_name))
             self.lineEdit_247.setText(str(item_price))
             self.lineEdit_249.setText(str(item_number))
             self.lineEdit_248.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         elif self.lineEdit_254.text() == "":
             self.lineEdit_254.setText(str(item_name))
             self.lineEdit_251.setText(str(item_price))
             self.lineEdit_253.setText(str(item_number))
             self.lineEdit_252.setText(str(sub_total))
+            self.lineEdit_39.setText(str(total))
 
         else:
             self.statusBar().showMessage('تم أكتمال الطلب لا يمكن إضافة أصناف أخرى')
@@ -683,10 +747,98 @@ class Main(QMainWindow, FORM_CLASS):
         self.comboBox_52.setCurrentIndex(0)
         self.lineEdit_4.setText('')
         self.lineEdit_13.setText(str(self.item_def_number))
+        self.Calculate_Total_Order()
         #self.Show_Total_Order()
 
-    def Show_Total_Order(self):
-        
+    def Add_Order(self):
+        code_order = self.lineEdit_94.text()
+        code_clint = self.comboBox_39.currentIndex()
+        employee = '001'
+        code_delivery = self.comboBox_40.currentIndex()
+        order_status = self.comboBox_29.currentIndex()
+        date_order = datetime.datetime.now()
+        date_expected = self.dateEdit_14.date()
+        date_deliver = self.dateEdit_15.date()
+        id_itm_01 = self.lineEdit_216.text()
+        number_itm_01 = self.lineEdit_215.text()
+        id_itm_02 = self.lineEdit_222.text()
+        number_itm_02 = self.lineEdit_220.text()
+        id_itm_03 = self.lineEdit_226.text()
+        number_itm_03 = self.lineEdit_225.text()
+        id_itm_04 = self.lineEdit_230.text()
+        number_itm_04 = self.lineEdit_229.text()
+        id_itm_05 = self.lineEdit_234.text()
+        number_itm_05 = self.lineEdit_233.text()
+        id_itm_06 = self.lineEdit_238.text()
+        number_itm_06 = self.lineEdit_237.text()
+        id_itm_07 = self.lineEdit_242.text()
+        number_itm_07 = self.lineEdit_241.text()
+        id_itm_08 = self.lineEdit_246.text()
+        number_itm_08 = self.lineEdit_245.text()
+        id_itm_09 = self.lineEdit_250.text()
+        number_itm_09 = self.lineEdit_249.text()
+        id_itm_10 = self.lineEdit_254.text()
+        number_itm_10 = self.lineEdit_253.text()
+        discount = self.lineEdit.text()
+        delivery_value = self.lineEdit.text()
+        total_order = self.lineEdit.text()
+        print(code_order, code_clint, employee, order_status, date_order, date_expected, date_deliver, id_itm_01, number_itm_01, id_itm_02, number_itm_02, id_itm_03, number_itm_03, id_itm_04, number_itm_04, id_itm_05, number_itm_05, id_itm_06, number_itm_06, id_itm_07, number_itm_07, id_itm_08, number_itm_08, id_itm_09, number_itm_09, id_itm_10, number_itm_10, discount, delivery_value, total_order)
+        """
+        self.cur.execute('''
+                INSERT INTO orders(code_order,code_clint_id,employee_id,order_status,date_order,date_expected,date_deliver,id_itm_01,number_itm_01,id_itm_02,number_itm_02,id_itm_03,number_itm_03,id_itm_04,number_itm_04,id_itm_05,number_itm_05,id_itm_06,number_itm_06,id_itm_07,number_itm_07,id_itm_08,number_itm_08,id_itm_09,number_itm_09,id_itm_10,number_itm_10,discount,delivery_value,total_order)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (code_order, code_clint, employee, order_status, date_order, date_expected, date_deliver, id_itm_01, number_itm_01, id_itm_02, number_itm_02, id_itm_03, number_itm_03, id_itm_04, number_itm_04, id_itm_05, number_itm_05, id_itm_06, number_itm_06, id_itm_07, number_itm_07, id_itm_08, number_itm_08, id_itm_09, number_itm_09, id_itm_10, number_itm_10, discount, delivery_value, total_order))
+
+        self.db.commit()
+        """
+        self.cur.execute("""
+            INSERT INTO orders(code_order, code_clint, employee, order_status, date_order, date_expected, date_deliver)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (code_order, code_clint, employee, order_status, date_order, date_expected, date_deliver))
+
+        self.db.commit()
+
+        self.lineEdit_94.setText('')
+        self.comboBox_39.setCurrentIndex(0)
+        self.comboBox_40.setCurrentIndex(0)
+        self.comboBox_29.setCurrentIndex(0)
+        self.statusBar().showMessage('تم إضافة بيانات الطلب بنجاح')
+        self.statusBar().setFont(QFont("Arial", 16))  # Set the font size to 16
+        print('Order Added')
+        self.Clear_Massage_5_Seconds()
+        self.Show_History()
+
+    def Calculate_Total_Order(self):
+        pass
+        """
+        default_price = 0
+        itm_01_total = self.lineEdit_213.text()
+        itm_02_total = self.lineEdit_219.text()
+        itm_03_total = self.lineEdit_224.text()
+        dis_order = self.lineEdit_58.text()
+        del_value = self.lineEdit_56.text()
+
+        total = itm_01_total + itm_02_total
+        print(total)
+
+        #self.lineEdits.append(total_price)
+        self.lineEdit_39.setReadOnly(True)
+        self.lineEdit_57.setText(str(default_price))
+        self.lineEdit_56.setText(str(default_price))
+        self.lineEdit_59.setText(itm_01_total + itm_02_total)
+        """
+
+        '''
+        total_price = 0
+        for row in range(self.tableWidget.rowCount()):
+            price_item = self.tableWidget.item(row, 1)
+            if price_item is not None:
+                total_price += float(price_item.text())
+
+        print(f'Total Price: {total_price}')
+        '''
+
+        """
         sub_total_01 = self.lineEdit_213.text()
         sub_total_02 = self.lineEdit_219.text()
         sub_total_03 = self.lineEdit_224.text()
@@ -697,15 +849,17 @@ class Main(QMainWindow, FORM_CLASS):
         sub_total_08 = self.lineEdit_244.text()
         sub_total_09 = self.lineEdit_248.text()
         sub_total_10 = self.lineEdit_252.text()
-        
+
         #discount = float(self.lineedit_price.text())
-        dis_order = float(self.lineEdit_58.text())
+        dis_order = self.lineEdit_58.text()
         #delivery_value = self.lineEdit_59.text()
-        del_value = float(self.lineEdit_59.text())
+        del_value = self.lineEdit_59.text()
         total_order = dis_order + del_value
         print(total_order)
         self.lineEdit_64.setText(total_order)
         self.lineEdit_64.setText(f'The result is: {total_order}')
+        :return: 
+        """
 
     def Delete_Item_01_order(self):
         self.lineEdit_216.clear()
@@ -816,6 +970,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.comboBox_20.clear()
         self.comboBox_16.clear()
         self.comboBox_8.clear()
+        self.comboBox_26.clear()
 
         self.cur.execute('''
                             SELECT name_governorate FROM governorates_egy
@@ -830,6 +985,7 @@ class Main(QMainWindow, FORM_CLASS):
             self.comboBox_20.addItem(str(governorate[0]))
             self.comboBox_16.addItem(str(governorate[0]))
             self.comboBox_8.addItem(str(governorate[0]))
+            self.comboBox_26.addItem(str(governorate[0]))
     """
         governorates_list = ["القاهرة","الجيزة","القليوبية","الإسكندرية","الإسماعيلية","أسوان","أسيوط","الأقصر","البحر الأحمر","البحيرة",
                              "بني سويف","بورسعيد","جنوب سيناء","الدقهلية","دمياط","سوهاج","السويس","الشرقية","شمال سيناء",
@@ -943,6 +1099,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.comboBox_21.clear()
         self.comboBox_19.clear()
         self.comboBox_6.clear()
+        self.comboBox_27.clear()
 
         self.cur.execute('''
                             SELECT area FROM locations
@@ -956,6 +1113,7 @@ class Main(QMainWindow, FORM_CLASS):
             self.comboBox_21.addItem(str(area[0]))
             self.comboBox_19.addItem(str(area[0]))
             self.comboBox_6.addItem(str(area[0]))
+            self.comboBox_27.addItem(str(area[0]))
 
     ## Add New Location
     def Add_New_Location(self):
@@ -1066,6 +1224,7 @@ class Main(QMainWindow, FORM_CLASS):
             #print(delivery[0])
 
             self.comboBox_18.addItem(str(delivery[0]))
+            self.comboBox_40.addItem(str(delivery[0]))
 
     def Show_Delivery(self):
         self.tableWidget_3.setRowCount(0)

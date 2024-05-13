@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19db1bc6-62eb-47a7-9407-565d94be0e2d" name="Changes" comment="" />
+    <list default="true" id="19db1bc6-62eb-47a7-9407-565d94be0e2d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB_Structure.py" beforeDir="false" afterPath="$PROJECT_DIR$/DB_Structure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graviola_05.ui" beforeDir="false" afterPath="$PROJECT_DIR$/Graviola_05.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index_Grav_05.py" beforeDir="false" afterPath="$PROJECT_DIR$/index_Grav_05.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,7 +23,27 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;shafeyvip&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="8df734d8-cf2a-4154-aed3-417d68f5d1b4" />
+        <option name="url" value="https://github.com/shafeyvip/Graviola-05.git" />
+      </UrlAndAccount>
+    </option>
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
